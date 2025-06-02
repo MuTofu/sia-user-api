@@ -43,3 +43,7 @@ class AdminBase(BaseModel):
     Id_admin : int | None = None
     username : str
     password : str
+
+class guruLogin(BaseModel):
+    email: str
+    password: str

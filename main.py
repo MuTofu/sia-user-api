@@ -18,28 +18,36 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 @app.get("/guru/all/", status_code=status.HTTP_200_OK)
-async def read_guru(db : db_dependency):
-    guru = db.query(Model.Guru).all()
-    respon = {"data" : guru}
-    return respon
+async def read_guru(db: db_dependency):
+    try:
+        guru = db.query(Model.Guru).all()
+        return {"code": 200, "message": "Data retrieved successfully", "data": guru}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/siswa/all/", status_code=status.HTTP_200_OK)
-async def read_siswa(db : db_dependency):
-    siswa = db.query(Model.Siswa).all()
-    respon = {"data" : siswa}
-    return respon
+async def read_siswa(db: db_dependency):
+    try:
+        siswa = db.query(Model.Siswa).all()
+        return {"code": 200, "message": "Data retrieved successfully", "data": siswa}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/kelas/all/", status_code=status.HTTP_200_OK)
-async def read_kelas(db : db_dependency):
-    kelas = db.query(Model.Kelas).all()
-    respon = {"data" : kelas}
-    return respon
+async def read_kelas(db: db_dependency):
+    try:
+        kelas = db.query(Model.Kelas).all()
+        return {"code": 200, "message": "Data retrieved successfully", "data": kelas}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/jurusan/all/", status_code=status.HTTP_200_OK)
-async def read_jurusan(db : db_dependency):
-    jurusan = db.query(Model.Jurusan).all()
-    respon = {"data" : jurusan}
-    return respon
+async def read_jurusan(db: db_dependency):
+    try:
+        jurusan = db.query(Model.Jurusan).all()
+        return {"code": 200, "message": "Data retrieved successfully", "data": jurusan}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/guru/create/", status_code=status.HTTP_201_CREATED)
@@ -160,3 +168,169 @@ async def update_guru(guru_id: int, guru: Schema.guruBase, db: db_dependency):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.put("/siswa/update/{siswa_id}", status_code=status.HTTP_200_OK)
+async def update_siswa(siswa_id: int, siswa: Schema.SiswaBase, db: db_dependency):
+    existing_siswa = db.query(Model.Siswa).filter(Model.Siswa.Id_siswa == siswa_id).first()
+
+    if not existing_siswa:
+        raise HTTPException(status_code=404, detail="Siswa not found")
+
+    existing_siswa.Nama = siswa.Nama
+    existing_siswa.Id_kelas = siswa.Id_kelas
+    existing_siswa.Id_jurusan = siswa.Id_jurusan
+    existing_siswa.tanggal_lahir = siswa.tanggal_lahir
+    existing_siswa.tempat_lahir = siswa.tempat_lahir
+    existing_siswa.NIK = siswa.NIK
+    existing_siswa.Agama = siswa.Agama
+    existing_siswa.email = siswa.email
+    existing_siswa.telepon = siswa.telepon
+    existing_siswa.password = siswa.password
+    existing_siswa.Alamat = siswa.Alamat
+    existing_siswa.status_murid = siswa.status_murid
+
+    try:
+        db.commit()
+        db.refresh(existing_siswa)
+        return {"message": "Siswa updated successfully", "data": existing_siswa}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/kelas/update/{kelas_id}", status_code=status.HTTP_200_OK)
+async def update_kelas(kelas_id: int, kelas: Schema.kelasBase, db: db_dependency):
+    existing_kelas = db.query(Model.Kelas).filter(Model.Kelas.Id_kelas == kelas_id).first()
+
+    if not existing_kelas:
+        raise HTTPException(status_code=404, detail="Kelas not found")
+
+    existing_kelas.Kelas = kelas.Kelas
+    existing_kelas.Id_wali = kelas.Id_wali
+
+    try:
+        db.commit()
+        db.refresh(existing_kelas)
+        return {"message": "Kelas updated successfully", "data": existing_kelas}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/jurusan/update/{jurusan_id}", status_code=status.HTTP_200_OK)
+async def update_jurusan(jurusan_id: int, jurusan: Schema.jurusanBase, db: db_dependency):
+    existing_jurusan = db.query(Model.Jurusan).filter(Model.Jurusan.Id_jurusan == jurusan_id).first()
+
+    if not existing_jurusan:
+        raise HTTPException(status_code=404, detail="Jurusan not found")
+
+    existing_jurusan.nama_jurusan = jurusan.nama_jurusan
+    existing_jurusan.id_kaprodi = jurusan.id_kaprodi
+
+    try:
+        db.commit()
+        db.refresh(existing_jurusan)
+        return {"message": "Jurusan updated successfully", "data": existing_jurusan}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/guru/delete/{guru_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_guru(guru_id: int, db: db_dependency):
+    existing_guru = db.query(Model.Guru).filter(Model.Guru.Id_guru == guru_id).first()
+
+    if not existing_guru:
+        raise HTTPException(status_code=404, detail="Guru not found")
+
+    try:
+        db.delete(existing_guru)
+        db.commit()
+        return {"message": "Guru deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/siswa/delete/{siswa_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_siswa(siswa_id: int, db: db_dependency):
+    existing_siswa = db.query(Model.Siswa).filter(Model.Siswa.Id_siswa == siswa_id).first()
+
+    if not existing_siswa:
+        raise HTTPException(status_code=404, detail="Siswa not found")
+
+    try:
+        db.delete(existing_siswa)
+        db.commit()
+        return {"message": "Siswa deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/kelas/delete/{kelas_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_kelas(kelas_id: int, db: db_dependency):
+    existing_kelas = db.query(Model.Kelas).filter(Model.Kelas.Id_kelas == kelas_id).first()
+
+    if not existing_kelas:
+        raise HTTPException(status_code=404, detail="Kelas not found")
+
+    try:
+        db.delete(existing_kelas)
+        db.commit()
+        return {"message": "Kelas deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/jurusan/delete/{jurusan_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_jurusan(jurusan_id: int, db: db_dependency):
+    existing_jurusan = db.query(Model.Jurusan).filter(Model.Jurusan.Id_jurusan == jurusan_id).first()
+
+    if not existing_jurusan:
+        raise HTTPException(status_code=404, detail="Jurusan not found")
+
+    try:
+        db.delete(existing_jurusan)
+        db.commit()
+        return {"message": "Jurusan deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/login/guru/", status_code=status.HTTP_200_OK)
+async def login_guru(guru: Schema.guruLogin, db: db_dependency):
+    try:
+        existing_guru = db.query(Model.Guru).filter(Model.Guru.email == guru.email).first()
+        if not existing_guru or existing_guru.password != guru.password:
+            return {"code": 401, "message": "Invalid email or password"}
+        else:
+            return {"code": 200, "message": "Login successful", "data": existing_guru}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/login/siswa/", status_code=status.HTTP_200_OK)
+async def login_siswa(siswa: Schema.SiswaBase, db: db_dependency):
+    try:
+        existing_siswa = db.query(Model.Siswa).filter(Model.Siswa.email == siswa.email).first()
+        if not existing_siswa or existing_siswa.password != siswa.password:
+            return {"code": 401, "message": "Invalid email or password"}
+        else:
+            return {"code": 200, "message": "Login successful", "data": existing_siswa}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/login/admin/", status_code=status.HTTP_200_OK)
+async def login_admin(admin: Schema.AdminBase, db: db_dependency):
+    try:
+        existing_admin = db.query(Model.Admin).filter(Model.Admin.username == admin.username).first()
+        if not existing_admin or existing_admin.password != admin.password:
+            return {"code": 401, "message": "Invalid username or password"}
+        else:
+            return {"code": 200, "message": "Login successful", "data": existing_admin}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
