@@ -314,7 +314,7 @@ async def login_guru(guru: Schema.guruLogin, db: db_dependency):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/login/siswa/", status_code=status.HTTP_200_OK)
-async def login_siswa(siswa: Schema.SiswaBase, db: db_dependency):
+async def login_siswa(siswa: Schema.SiswaLogin, db: db_dependency):
     try:
         existing_siswa = db.query(Model.Siswa).filter(Model.Siswa.email == siswa.email).first()
         if not existing_siswa or existing_siswa.password != siswa.password:
@@ -325,7 +325,7 @@ async def login_siswa(siswa: Schema.SiswaBase, db: db_dependency):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/login/admin/", status_code=status.HTTP_200_OK)
-async def login_admin(admin: Schema.AdminBase, db: db_dependency):
+async def login_admin(admin: Schema.AdminLogin, db: db_dependency):
     try:
         existing_admin = db.query(Model.Admin).filter(Model.Admin.username == admin.username).first()
         if not existing_admin or existing_admin.password != admin.password:

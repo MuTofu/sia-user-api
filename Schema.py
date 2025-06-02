@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 class guruBase(BaseModel):
     Id_guru : int | None = None
@@ -7,7 +7,7 @@ class guruBase(BaseModel):
     Tempat_lahir : str
     NIK : int
     Agama : str
-    email :str
+    email :EmailStr
     password : str
     telepon : int
     Alamat :str
@@ -33,7 +33,7 @@ class SiswaBase(BaseModel):
     tempat_lahir : str
     NIK : int
     Agama : str
-    email : str
+    email : EmailStr
     password: str
     telepon : int
     Alamat : str
@@ -45,5 +45,13 @@ class AdminBase(BaseModel):
     password : str
 
 class guruLogin(BaseModel):
-    email: str
+    email: EmailStr
+    password: str
+
+class SiswaLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class AdminLogin(BaseModel):
+    username: str
     password: str
